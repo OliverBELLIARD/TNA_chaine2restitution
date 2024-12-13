@@ -50,9 +50,7 @@ Fstop = Fs_pdm/(2*M); % Frequency of the attenuated band
 Astop = 1.76 + 6.02*20; % Gain in the attenuated band
 
 %% Filtering and Decimation
-% Apply lowpass filter
-% pdm_filtered = filter(lpFilt, pdm_in);
-
+% Load filters
 % H = fir_1over256();
 fir1 = FIR_equiripple_5680();
 fir2 = FIR_constrained_equiripple_5000();
@@ -63,7 +61,11 @@ iir2 = IIR_Chebyshev1_29();
 iir3 = IIR_Chebyshev2_29();
 iir4 = IIR_Eliptic_15();
 
-pdm_filtered = filter(iir4.Numerator,1, pdm_in);
+% Apply FIR lowpass filter
+% pdm_filtered = filter(fir3.Numerator,1, pdm_in);
+% Extract coefficients
+[b, a] = tf(iir4);
+pdm_filtered = filte(iir4,1, pdm_in);
 
 % Decimation
 pdm_decimated = decimate(pdm_filtered, M);

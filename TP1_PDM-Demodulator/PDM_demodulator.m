@@ -62,8 +62,7 @@ iir3 = IIR_Chebyshev2_29();
 iir4 = IIR_Eliptic_15();
 
 % Apply FIR lowpass filter
-% pdm_filtered = filter(fir3.Numerator,1, pdm_in);
-pdm_filtered = filter(iir4, pdm_in);
+pdm_filtered = step(iir4, pdm_in);
 
 % Decimation
 pdm_decimated = decimate(pdm_filtered, M);
