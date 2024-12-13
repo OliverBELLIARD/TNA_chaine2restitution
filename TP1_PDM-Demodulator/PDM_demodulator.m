@@ -54,8 +54,8 @@ Astop = 1.76 + 6.02*20; % Gain in the attenuated band
 % pdm_filtered = filter(lpFilt, pdm_in);
 
 % H = fir_1over256();
-H = FIR_equiripple_5680();
-pdm_filtered = filter(H.Numerator,1, pdm_in);
+fir1 = FIR_equiripple_5680();
+pdm_filtered = filter(fir1.Numerator,1, pdm_in);
 
 % Decimation
 pdm_decimated = decimate(pdm_filtered, M);
