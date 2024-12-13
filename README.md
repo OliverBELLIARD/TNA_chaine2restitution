@@ -1,2 +1,2 @@
-# TNA_chaine2restitution_BELLIARD_PRIOU
+# TNA_chaine2restitution
 etude d'une chaîne de restitution sonore
