@@ -30,7 +30,8 @@ ylabel('Gain (dB)');
 title('FIR Filters: Gain');
 grid on;
 legend;
-xlim([0 ])
+xlim([0 50]);
+ylim([-130 10]);
 hold off;
 
 subplot(2, 1, 2);
@@ -44,6 +45,7 @@ ylabel('Phase (Degrees)');
 title('FIR Filters: Phase');
 grid on;
 legend;
+xlim([0 50]);
 hold off;
 
 %% Plot IIR filters: Gain and Phase
@@ -52,26 +54,29 @@ subplot(2, 1, 1);
 hold on;
 for i = 1:length(filters_iir)
     [H, f] = freqz(filters_iir{i});
-    plot(f / 1e3, 20 * log10(abs(H)), 'DisplayName', labels_iir{i});
+    plot(f / 1e-3, 20 * log10(abs(H)), 'DisplayName', labels_iir{i});
 end
 xlabel('Frequency (kHz)');
 ylabel('Gain (dB)');
 title('IIR Filters: Gain');
 grid on;
 legend;
+xlim([0 50]);
+ylim([-130 10]);
 hold off;
 
 subplot(2, 1, 2);
 hold on;
 for i = 1:length(filters_iir)
     [H, f] = freqz(filters_iir{i});
-    plot(f / 1e3, unwrap(angle(H)) * (180 / pi), 'DisplayName', labels_iir{i});
+    plot(f / 1e-3, unwrap(angle(H)) * (180 / pi), 'DisplayName', labels_iir{i});
 end
 xlabel('Frequency (kHz)');
 ylabel('Phase (Degrees)');
 title('IIR Filters: Phase');
 grid on;
 legend;
+xlim([0 50]);
 hold off;
 
 %% Compare all filters together
@@ -84,13 +89,15 @@ for i = 1:length(filters_fir)
 end
 for i = 1:length(filters_iir)
     [H, f] = freqz(filters_iir{i});
-    plot(f / 1e3, 20 * log10(abs(H)), '--', 'DisplayName', labels_iir{i});
+    plot(f / 1e-3, 20 * log10(abs(H)), '--', 'DisplayName', labels_iir{i});
 end
 xlabel('Frequency (kHz)');
 ylabel('Gain (dB)');
 title('All Filters: Gain');
 grid on;
 legend;
+xlim([0 50]);
+ylim([-130 10]);
 hold off;
 
 subplot(2, 1, 2);
@@ -101,11 +108,12 @@ for i = 1:length(filters_fir)
 end
 for i = 1:length(filters_iir)
     [H, f] = freqz(filters_iir{i});
-    plot(f / 1e3, unwrap(angle(H)) * (180 / pi), '--', 'DisplayName', labels_iir{i});
+    plot(f / 1e-3, unwrap(angle(H)) * (180 / pi), '--', 'DisplayName', labels_iir{i});
 end
 xlabel('Frequency (kHz)');
 ylabel('Phase (Degrees)');
 title('All Filters: Phase');
 grid on;
 legend;
+xlim([0 50]);
 hold off;

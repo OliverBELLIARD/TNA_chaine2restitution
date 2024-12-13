@@ -16,14 +16,13 @@ labels_fir = {'FIR Equiripple 5680', 'FIR Constrained Equiripple 5000', 'FIR Gen
 labels_iir = {'IIR Butterworth 94', 'IIR Chebyshev1 29', 'IIR Chebyshev2 29', 'IIR Elliptic 15'};
 
 Fs = 6.144e6; % Sampling frequency
-EvalPoints = 4096;
 
 %% Plot FIR filters: Gain and Phase
 figure('Name', 'FIR Filters: Gain and Phase');
 subplot(2, 1, 1);
 hold on;
 for i = 1:length(filters_fir)
-    [H, f] = freqz(filters_fir{i}.Numerator, 1, EvalPoints, Fs);
+    [H, f] = freqz(filters_fir{i}.Numerator, 1, 2048, Fs);
     plot(f / 1e3, 20 * log10(abs(H)), 'DisplayName', labels_fir{i});
 end
 xlabel('Frequency (kHz)');
@@ -31,14 +30,14 @@ ylabel('Gain (dB)');
 title('FIR Filters: Gain');
 grid on;
 legend;
-xlim([0 50])
-ylim([-150 10])
+xlim([0 50]);
+ylim([-150 10]);
 hold off;
 
 subplot(2, 1, 2);
 hold on;
 for i = 1:length(filters_fir)
-    [H, f] = freqz(filters_fir{i}.Numerator, 1, EvalPoints, Fs);
+    [H, f] = freqz(filters_fir{i}.Numerator, 1, 2048, Fs);
     plot(f / 1e3, unwrap(angle(H)) * (180 / pi), 'DisplayName', labels_fir{i});
 end
 xlabel('Frequency (kHz)');
@@ -46,7 +45,7 @@ ylabel('Phase (Degrees)');
 title('FIR Filters: Phase');
 grid on;
 legend;
-xlim([0 50])
+xlim([0 50]);
 hold off;
 
 %% Plot IIR filters: Gain and Phase
@@ -55,29 +54,29 @@ subplot(2, 1, 1);
 hold on;
 for i = 1:length(filters_iir)
     [H, f] = freqz(filters_iir{i});
-    plot(f / 1e3, 20 * log10(abs(H)), 'DisplayName', labels_iir{i});
+    plot(f / 1e-3, 20 * log10(abs(H)), 'DisplayName', labels_iir{i});
 end
 xlabel('Frequency (kHz)');
 ylabel('Gain (dB)');
 title('IIR Filters: Gain');
 grid on;
 legend;
-xlim([0 50])
-ylim([-150 10])
+xlim([0 50]);
+ylim([-150 10]);
 hold off;
 
 subplot(2, 1, 2);
 hold on;
 for i = 1:length(filters_iir)
     [H, f] = freqz(filters_iir{i});
-    plot(f / 1e3, unwrap(angle(H)) * (180 / pi), 'DisplayName', labels_iir{i});
+    plot(f / 1e-3, unwrap(angle(H)) * (180 / pi), 'DisplayName', labels_iir{i});
 end
 xlabel('Frequency (kHz)');
 ylabel('Phase (Degrees)');
 title('IIR Filters: Phase');
 grid on;
 legend;
-xlim([0 50])
+xlim([0 50]);
 hold off;
 
 %% Compare all filters together
@@ -85,36 +84,36 @@ figure('Name', 'All Filters: Gain and Phase');
 subplot(2, 1, 1);
 hold on;
 for i = 1:length(filters_fir)
-    [H, f] = freqz(filters_fir{i}.Numerator, 1, EvalPoints, Fs);
+    [H, f] = freqz(filters_fir{i}.Numerator, 1, 2048, Fs);
     plot(f / 1e3, 20 * log10(abs(H)), 'DisplayName', labels_fir{i});
 end
 for i = 1:length(filters_iir)
     [H, f] = freqz(filters_iir{i});
-    plot(f / 1e3, 20 * log10(abs(H)), '--', 'DisplayName', labels_iir{i});
+    plot(f / 1e-3, 20 * log10(abs(H)), '--', 'DisplayName', labels_iir{i});
 end
 xlabel('Frequency (kHz)');
 ylabel('Gain (dB)');
 title('All Filters: Gain');
 grid on;
 legend;
-xlim([0 50])
-ylim([-150 10])
+xlim([0 50]);
+ylim([-150 10]);
 hold off;
 
 subplot(2, 1, 2);
 hold on;
 for i = 1:length(filters_fir)
-    [H, f] = freqz(filters_fir{i}.Numerator, 1, EvalPoints, Fs);
+    [H, f] = freqz(filters_fir{i}.Numerator, 1, 2048, Fs);
     plot(f / 1e3, unwrap(angle(H)) * (180 / pi), 'DisplayName', labels_fir{i});
 end
 for i = 1:length(filters_iir)
     [H, f] = freqz(filters_iir{i});
-    plot(f / 1e3, unwrap(angle(H)) * (180 / pi), '--', 'DisplayName', labels_iir{i});
+    plot(f / 1e-3, unwrap(angle(H)) * (180 / pi), '--', 'DisplayName', labels_iir{i});
 end
 xlabel('Frequency (kHz)');
 ylabel('Phase (Degrees)');
 title('All Filters: Phase');
 grid on;
 legend;
-xlim([0 50])
+xlim([0 50]);
 hold off;
