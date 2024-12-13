@@ -48,7 +48,6 @@ Apass = power(10, 0.1/20); % Filter gain
 Fpass = 20e3; % Cut off frequency
 Fstop = Fs_pdm/(2*M); % Frequency of the attenuated band
 Astop = 1.76 + 6.02*20; % Gain in the attenuated band
-Nfilt = 1000; % Filter order
 
 %% Filtering and Decimation
 % Apply lowpass filter
