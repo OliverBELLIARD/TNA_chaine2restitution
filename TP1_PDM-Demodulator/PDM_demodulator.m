@@ -52,13 +52,13 @@ Astop = 1.76 + 6.02*20; % Gain in the attenuated band
 %% Filtering and Decimation
 % Load filters
 % H = fir_1over256();
-fir1 = FIR_equiripple_5680();
-fir2 = FIR_constrained_equiripple_5000();
-fir3 = FIR_generalized_equiripple_11000();
+% fir1 = FIR_equiripple_5680();
+% fir2 = FIR_constrained_equiripple_5000();
+% fir3 = FIR_generalized_equiripple_11000();
 
-iir1 = IIR_Butterworth_94();
-iir2 = IIR_Chebyshev1_29();
-iir3 = IIR_Chebyshev2_29();
+% iir1 = IIR_Butterworth_94();
+% iir2 = IIR_Chebyshev1_29();
+% iir3 = IIR_Chebyshev2_29();
 iir4 = IIR_Eliptic_15();
 
 % Apply FIR lowpass filter
