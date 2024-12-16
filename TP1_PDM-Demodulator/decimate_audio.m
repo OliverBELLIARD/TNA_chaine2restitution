@@ -1,7 +1,7 @@
 function Xout = decimate_audio(Xin, Fs, M, bits)
 %% Filters and decimates an audio signal with a bit proportional SNR
 if nargin < 4
-    bits = 20;  % Defalut bits resolution for PCM
+    bits = 20;
 end
 
 % Filter design
@@ -21,3 +21,5 @@ Xfilt = step(Hd, Xin);
 
 % Decimation
 Xout = decimate(Xfilt, M);
+
+end
