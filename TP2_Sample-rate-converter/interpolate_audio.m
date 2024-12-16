@@ -28,4 +28,5 @@ upsampled_signal(1:L:end) = Xin; % Insert original samples with L-1 zeros in bet
 
 % Apply anti-aliasing filter
 Xout = filter(b, 1, upsampled_signal); % FIR filtering for anti-aliasing
+
 end

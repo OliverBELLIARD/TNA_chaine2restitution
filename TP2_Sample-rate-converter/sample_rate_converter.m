@@ -56,7 +56,6 @@ output_fft = abs(fft(out_signal, N_fft));
 input_fft_db = 20 * log10(input_fft);
 output_fft_db = 20 * log10(output_fft);
 
-figure;
 subplot(2,1,2);
 hold on
 loglog(frequencies_in, 20*log10(input_fft(1:N_fft/2)));
