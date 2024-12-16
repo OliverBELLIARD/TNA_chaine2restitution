@@ -49,52 +49,60 @@ Fpass = 20e3; % Cut off frequency
 Fstop = Fs_pdm/(2*M); % Frequency of the attenuated band
 Astop = 1.76 + 6.02*20; % Gain in the attenuated band
 
-%% Filtering and Decimation
-% Apply cascade decimation
-M1 = 16;
-M2 = 4;
-M3 = 2;
+%% Filter Parameters
+Fs_pcm = 48e3;  % Target sampling frequency
+M1 = 8;         % First decimation factor
+M2 = 4;         % Second decimation factor
+M3 = 4;         % Third decimation factor
+M4 = 2;         % Fourth decimation factor
 
-Fs1 = floor(Fs_pdm/M1); % New decimation factor
-pdm_filtered1 = decimate_audio(pdm_in, Fs_pdm, M1);
+%% Cascade Decimation
+% Stage 1 - Decimate by M1
+Fs1 = Fs_pdm / M1;
+pdm_filtered1 = decimate_audio(pdm_in, Fs_pdm, M1); % Pass original Fs_pdm to Stage 1
 
-Fs2 = floor(Fs_pdm/M2); % New decimation factor
-pdm_filtered2 = decimate_audio(pdm_filtered1, Fs1, M2);
+% Stage 2 - Decimate by M2
+Fs2 = Fs1 / M2;
+pdm_filtered2 = decimate_audio(pdm_filtered1, Fs1, M2); % Pass Fs1 to Stage 2
 
-Fs3 = floor(Fs_pdm/M3); % New decimation factor
-pdm_decimated = decimate_audio(pdm_filtered2, Fs2, M3);
+% Stage 3 - Decimate by M3
+Fs3 = Fs2 / M3;
+pdm_decimated = decimate_audio(pdm_filtered2, Fs2, M3); % Pass Fs2 to Stage 3
 
-%% FFT of the decimated input signal
-PDM_dec_fft = abs(fft(pdm_decimated)); % Magnitude of the FFT
+% Stage 4 - Decimate by M4
+% Fs4 = Fs3 / M4;
+% pdm_decimated = decimate_audio(pdm_filtered3, Fs3, M4); % Pass Fs3 to Stage 4
+
+%% FFT of Decimated Signal
+PDM_dec_fft = abs(fft(pdm_decimated)); % FFT Magnitude
 PDM_dec_fft = PDM_dec_fft / max(PDM_dec_fft); % Normalization
+PDM_dec_fft_db = 20 * log10(PDM_dec_fft); % Convert to dB
 
-% Convert to dB
-PDM_dec_fft_db = 20 * log10(PDM_dec_fft); % Convert amplitude to decibels (log scale)
+N_dec = length(PDM_dec_fft); % Number of samples
+freq_dec = (0:N_dec-1)*(Fs_pcm/N_dec); % Frequency axis for the decimated signal
 
-N = length(PDM_dec_fft); % Number of samples
-
-% Frequency axis
-freq = (0:N-1)*(Fs_pcm/N); % Frequency axis for single-sided FFT
-
-%% Visualisation du signal PDM décimé et sa FFT
 figure(2)
-
-% FFT plot in dB (frequency domain)
 subplot(2,1,1)
-plot(freq/1e6, PDM_dec_fft_db) % Frequency in MHz
+plot(freq_dec/1e6, PDM_dec_fft_db)
 xlabel('Frequency (MHz)')
-ylabel('Normalized Amplitude')
-title('FFT of decimated PCM Input Signal')
-xlim([0 .03]) % Plot up to Nyquist frequency
+ylabel('Normalized Amplitude (dB)')
+title('FFT of Decimated PCM Input Signal', ...
+    "Decimation ratios: "+M1+" x "+M2+" x "+M3)
+% title('FFT of Decimated PCM Input Signal', ...
+%     "Decimation ratios: "+M1+" x "+M2+" x "+M3+" x "+M4)
+xlim([0 0.03])
 grid on
 
-% PDM signal (time domain)
 subplot(2,1,2)
 plot(pdm_decimated(1:300))
 xlabel('Sample Index')
 ylabel('Amplitude')
-title('Decimated PCM Input Signal (Time Domain)')
+title('Decimated PCM Input Signal (Time Domain)', ...
+    "Decimation ratios: "+M1+" x "+M2+" x "+M3)
+% title('Decimated PCM Input Signal (Time Domain)', ...
+%     "Decimation ratios: "+M1+" x "+M2+" x "+M3+" x "+M4)
 axis([0 300 -1.1 1.1])
 grid on
 
-audiowrite("pcm_from_pdm.wav", pdm_decimated, Fs_pcm)
+%% Save the Decimated Output
+audiowrite("pcm_from_pdm.wav", pdm_decimated, Fs_pcm);

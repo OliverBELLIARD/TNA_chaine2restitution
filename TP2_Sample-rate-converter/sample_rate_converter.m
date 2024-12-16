@@ -30,22 +30,23 @@ interpolated_signal = interpolate_audio(input_signal, Fs_in, L, Nbits);
 %% Decimation (Downsampling)
 out_signal = decimate_audio(interpolated_signal, Fs_in * L, M, Nbits);
 
-%% Time Vectors for Outputs
+%% Signals comparison
+% Time Vectors for Outputs
 t_out = 0:1/Fs_out:(length(out_signal)-1)/Fs_out;
 
-%% Plot the Input Signal
+% Plot the Input Signal
 figure;
 subplot(2,1,1);
 hold on
 plot(t_in, input_signal);
 
-%% Plot the Converted Signal
+% Plot the Converted Signal
 plot(t_out, out_signal);
 title('Input (44.1 kHz) and Output (48 kHz) Signals');
 xlabel('Time [s]'); ylabel('Amplitude'); grid on;
 hold off
 
-%% Verify Frequency Content via FFT
+% Verify Frequency Content via plotting FFT
 N_fft = N;
 frequencies_in  = linspace(0, Fs_in/2, N_fft/2);
 frequencies_out = linspace(0, Fs_out/2, N_fft/2);
