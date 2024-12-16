@@ -1,0 +1,11 @@
+clear all; clc; close all;
+
+audio_in = load('playback_44100.mat', "-mat").w441;
+Fs = 44100;
+Fs_goal = 48000;
+
+ratio = Fs_goal/Fs;
+L = 16;
+M = 1464;
+
+Fstest = (Fs*L/M)
