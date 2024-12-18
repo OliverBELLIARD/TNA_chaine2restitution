@@ -55,6 +55,8 @@ Fs_pcm = 48e3;  % Target sampling frequency
 M1 = 2;         % First decimation factor
 M2 = 8;         % Second decimation factor
 M3 = 8;         % Third decimation factor
+M4 = 2;         % Fourth decimation factor
+M5 = 2;         % Fourth decimation factor
 
 %% Cascade Decimation
 pdm_decimated = decimate_cascade(pdm_in, Fs_pdm, M1, M2, M3);
@@ -70,12 +72,24 @@ freq_dec = (0:N_dec-1)*(Fs_pcm/N_dec); % Frequency axis for the decimated signal
 figure(2)
 subplot(2,1,1)
 plot(freq_dec/1e6, PDM_dec_fft_db)
+xlabel('Frequency (MHz)')
+ylabel('Normalized Amplitude (dB)')
+% title('FFT of Decimated PCM Input Signal', ...
+%     "Decimation ratios: "+M1+" x "+M2+" x "+M3)
+% title('FFT of Decimated PCM Input Signal', ...
+%     "Decimation ratios: "+M1+" x "+M2+" x "+M3+" x "+M4)
 xlim([0 Fstop/1e6])
 grid on
 hold on
 
 subplot(2,1,2)
 plot(pdm_decimated(1:300))
+xlabel('Sample Index')
+ylabel('Amplitude')
+% title('Decimated PCM Input Signal (Time Domain)', ...
+%     "Decimation ratios: "+M1+" x "+M2+" x "+M3)
+% title('Decimated PCM Input Signal (Time Domain)', ...
+%     "Decimation ratios: "+M1+" x "+M2+" x "+M3+" x "+M4)
 axis([0 300 -1.1 1.1])
 grid on
 hold on
@@ -87,6 +101,7 @@ M1 = 2;         % First decimation factor
 M2 = 4;         % Second decimation factor
 M3 = 4;         % Third decimation factor
 M4 = 4;         % Fourth decimation factor
+M5 = 2;         % Fourth decimation factor
 
 %% Cascade Decimation
 pdm_decimated = decimate_cascade(pdm_in, Fs_pdm, M1, M2, M3, M4);
@@ -99,70 +114,13 @@ PDM_dec_fft_db = 20 * log10(PDM_dec_fft); % Convert to dB
 N_dec = length(PDM_dec_fft); % Number of samples
 freq_dec = (0:N_dec-1)*(Fs_pcm/N_dec); % Frequency axis for the decimated signal
 
-subplot(2,1,1)
-plot(freq_dec/1e6, PDM_dec_fft_db)
-xlim([0 Fstop/1e6])
-grid on
-
-subplot(2,1,2)
-plot(pdm_decimated(1:300))
-axis([0 300 -1.1 1.1])
-grid on
-
-%% Third cascade Decimation
-% Decimation Parameters
-Fs_pcm = 48e3;  % Target sampling frequency
-M1 = 8;         % First decimation factor
-M2 = 4;         % Second decimation factor
-M3 = 4;         % Third decimation factor
-
-%% Cascade Decimation
-pdm_decimated = decimate_cascade(pdm_in, Fs_pdm, M1, M2, M3);
-
-%% FFT of Decimated Signal
-PDM_dec_fft = abs(fft(pdm_decimated)); % FFT Magnitude
-PDM_dec_fft = PDM_dec_fft / max(PDM_dec_fft); % Normalization
-PDM_dec_fft_db = 20 * log10(PDM_dec_fft); % Convert to dB
-
-N_dec = length(PDM_dec_fft); % Number of samples
-freq_dec = (0:N_dec-1)*(Fs_pcm/N_dec); % Frequency axis for the decimated signal
-
-subplot(2,1,1)
-plot(freq_dec/1e6, PDM_dec_fft_db)
-xlim([0 Fstop/1e6])
-grid on
-
-subplot(2,1,2)
-plot(pdm_decimated(1:300))
-axis([0 300 -1.1 1.1])
-grid on
-
-%% Fourth cascade Decimation
-% Decimation Parameters
-Fs_pcm = 48e3;  % Target sampling frequency
-M1 = 4;         % First decimation factor
-M2 = 4;         % Second decimation factor
-M3 = 8;         % Third decimation factor
-M4 = 4;         % Fourth decimation factor
-M5 = 2;         % Fourth decimation factor
-
-%% Cascade Decimation
-pdm_decimated = decimate_cascade(pdm_in, Fs_pdm, M1, M2, M3);
-
-%% FFT of Decimated Signal
-PDM_dec_fft = abs(fft(pdm_decimated)); % FFT Magnitude
-PDM_dec_fft = PDM_dec_fft / max(PDM_dec_fft); % Normalization
-PDM_dec_fft_db = 20 * log10(PDM_dec_fft); % Convert to dB
-
-N_dec = length(PDM_dec_fft); % Number of samples
-freq_dec = (0:N_dec-1)*(Fs_pcm/N_dec); % Frequency axis for the decimated signal
-
+figure(2)
 subplot(2,1,1)
 plot(freq_dec/1e6, PDM_dec_fft_db)
 xlabel('Frequency (MHz)')
 ylabel('Normalized Amplitude (dB)')
 title('FFT of Cascade Decimations')
-legend('2x8x8', '2x4x4x4', '8x4x4', '4x4x8')
+legend('2x8x8', '2x4x4x4')
 xlim([0 Fstop/1e6])
 grid on
 
@@ -171,7 +129,46 @@ plot(pdm_decimated(1:300))
 xlabel('Sample Index')
 ylabel('Amplitude')
 title('Cascade Decimated PCM')
-legend('2x8x8', '2x4x4x4', '8x4x4', '4x4x8')
+legend('2x8x8', '2x4x4x4')
+axis([0 300 -1.1 1.1])
+grid on
+
+%% Third cascade Decimation
+% Decimation Parameters
+Fs_pcm = 48e3;  % Target sampling frequency
+M1 = 2;         % First decimation factor
+M2 = 4;         % Second decimation factor
+M3 = 4;         % Third decimation factor
+M4 = 4;         % Fourth decimation factor
+M5 = 2;         % Fourth decimation factor
+
+%% Cascade Decimation
+pdm_decimated = decimate_cascade(pdm_in, Fs_pdm, M1, M2, M3, M4);
+
+%% FFT of Decimated Signal
+PDM_dec_fft = abs(fft(pdm_decimated)); % FFT Magnitude
+PDM_dec_fft = PDM_dec_fft / max(PDM_dec_fft); % Normalization
+PDM_dec_fft_db = 20 * log10(PDM_dec_fft); % Convert to dB
+
+N_dec = length(PDM_dec_fft); % Number of samples
+freq_dec = (0:N_dec-1)*(Fs_pcm/N_dec); % Frequency axis for the decimated signal
+
+figure(2)
+subplot(2,1,1)
+plot(freq_dec/1e6, PDM_dec_fft_db)
+xlabel('Frequency (MHz)')
+ylabel('Normalized Amplitude (dB)')
+title('FFT of Cascade Decimations')
+legend('2x8x8', '2x4x4x4')
+xlim([0 Fstop/1e6])
+grid on
+
+subplot(2,1,2)
+plot(pdm_decimated(1:300))
+xlabel('Sample Index')
+ylabel('Amplitude')
+title('Cascade Decimated PCM')
+legend('2x8x8', '2x4x4x4')
 axis([0 300 -1.1 1.1])
 grid on
 
