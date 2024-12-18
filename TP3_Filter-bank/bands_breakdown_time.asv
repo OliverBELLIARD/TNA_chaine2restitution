@@ -1,0 +1,38 @@
+clear all; clc; close all;
+
+fs = 48000;
+bw = 1;
+
+% Based on ISO Standard Octave Band Frequencies
+% f_center = [31.25, 62.5, 125, 250, 500, 1000, 2000, 4000, 8000, 16000]; % Hz
+fMin = 31.25;
+fMax = 16000;
+
+octs = log2(fMax/fMin);
+bmax = ceil(octs/bw);
+
+fc = fMin*2.^( (0:bmax) * bw ); % centre frequencies
+fl = fc*2^(-bw/2); % lower cutoffs
+fu = fc*2^(+bw/2); % upper cutoffs
+
+numBands = length(fc);
+
+b = cell(numBands,1);
+a = cell(numBands,1);
+
+figure
+for nn = 1:numBands
+
+    [b{nn},a{nn}] = butter(2, [fl(nn) fu(nn)]/(fs/2), 'bandpass');
+    [h,f]=freqz(b{nn},a{nn},power(2,16),fs);
+
+    % Plot of all filters
+    hold on;
+    loglog(f, 20*log10(abs(h)) );
+
+end
+
+title("Filter bank");
+set(gca, 'XScale', 'log')
+ylim([-50 1])
+grid on;
