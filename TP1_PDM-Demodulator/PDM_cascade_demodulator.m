@@ -57,21 +57,23 @@ M3 = 4;         % Third decimation factor
 M4 = 2;         % Fourth decimation factor
 
 %% Cascade Decimation
-% Stage 1 - Decimate by M1
-Fs1 = Fs_pdm / M1;
-pdm_filtered1 = decimate_audio(pdm_in, Fs_pdm, M1); % Pass original Fs_pdm to Stage 1
+% % Stage 1 - Decimate by M1
+% Fs1 = Fs_pdm / M1;
+% pdm_filtered1 = decimate_audio(pdm_in, Fs_pdm, M1); % Pass original Fs_pdm to Stage 1
+% 
+% % Stage 2 - Decimate by M2
+% Fs2 = Fs1 / M2;
+% pdm_filtered2 = decimate_audio(pdm_filtered1, Fs1, M2); % Pass Fs1 to Stage 2
+% 
+% % Stage 3 - Decimate by M3
+% Fs3 = Fs2 / M3;
+% pdm_decimated = decimate_audio(pdm_filtered2, Fs2, M3); % Pass Fs2 to Stage 3
+% 
+% % Stage 4 - Decimate by M4
+% % Fs4 = Fs3 / M4;
+% % pdm_decimated = decimate_audio(pdm_filtered3, Fs3, M4); % Pass Fs3 to Stage 4
 
-% Stage 2 - Decimate by M2
-Fs2 = Fs1 / M2;
-pdm_filtered2 = decimate_audio(pdm_filtered1, Fs1, M2); % Pass Fs1 to Stage 2
-
-% Stage 3 - Decimate by M3
-Fs3 = Fs2 / M3;
-pdm_decimated = decimate_audio(pdm_filtered2, Fs2, M3); % Pass Fs2 to Stage 3
-
-% Stage 4 - Decimate by M4
-% Fs4 = Fs3 / M4;
-% pdm_decimated = decimate_audio(pdm_filtered3, Fs3, M4); % Pass Fs3 to Stage 4
+pdm_decimated = decimate_cascade(pdm_in, Fs_pdm, M1, M2, M3);
 
 %% FFT of Decimated Signal
 PDM_dec_fft = abs(fft(pdm_decimated)); % FFT Magnitude
@@ -90,7 +92,7 @@ title('FFT of Decimated PCM Input Signal', ...
     "Decimation ratios: "+M1+" x "+M2+" x "+M3)
 % title('FFT of Decimated PCM Input Signal', ...
 %     "Decimation ratios: "+M1+" x "+M2+" x "+M3+" x "+M4)
-xlim([0 0.03])
+xlim([0 Fstop/1e6])
 grid on
 
 subplot(2,1,2)

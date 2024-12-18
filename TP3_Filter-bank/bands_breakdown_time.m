@@ -1,81 +1,114 @@
-%% Load Input Signal
 clear all; clc; close all;
 
-Xin = load("pcm_48k.mat", '-mat').pcm_48; % Input signal
-Fs = 48000; % Sampling Frequency
-N = length(Xin);
+%% Load Signal
+Xin = load("pcm_48k.mat", '-mat').pcm_48; % Input PCM signal
+Fs = 48000;                              % Sampling frequency
+N = length(Xin);                         % Signal length
+t = (0:N-1)/Fs;                          % Time vector
 
-%% Define Octave Bands
-% One octave bands: Center Frequencies (logarithmically spaced)
-f_low = 20;        % Start frequency (Hz)
-f_high = Fs/2;     % Nyquist frequency
+%% FIR Perfect Reconstruction Filter Bank Design
+n  = 21;          % Filter order (must be odd)
+fp = 0.25;         % Initial passband edge for splitting at Nyquist
 
-% Generate center frequencies for octave bands
-fc = []; 
-while f_low < f_high
-    fc = [fc f_low];
-    f_low = f_low * 2; % Next octave
-end
+% Create filters for each stage
+[h0, h1, g0, g1] = firpr2chfb(n, fp); % Stage-1 filters
 
-%% Filter Design
-filter_order = 128; % FIR Filter order (choose even for linear phase)
-Xbands = zeros(N, length(fc)); % Preallocate filtered signal matrix
+%% Octave Band Decomposition using 6 Bands
+% Stage 1: Split signal into Lowpass and Highpass
+X1_lp = filter(h0, 1, Xin); % Lowpass band
+X1_hp = filter(h1, 1, Xin); % Highpass band
 
-% Iterate through octave bands and design FIR bandpass filters
-for k = 1:length(fc)
-    if k == 1 % Special case for the first band (lowpass)
-        fpass = fc(k)*sqrt(2)/Fs; % Upper passband frequency (normalized)
-        b = fir1(filter_order, fpass, 'low'); % Lowpass FIR filter
-    elseif k == length(fc) % Last band (highpass)
-        fpass = fc(k)/sqrt(2)/Fs; % Lower passband frequency (normalized)
-        b = fir1(filter_order, fpass, 'high'); % Highpass FIR filter
-    else % General case: Bandpass filter
-        f1 = fc(k)/sqrt(2); % Lower edge of the band
-        f2 = fc(k)*sqrt(2); % Upper edge of the band
-        b = fir1(filter_order, [f1 f2]/(Fs/2), 'bandpass'); % Bandpass FIR
-    end
-    
-    % Filter input signal to isolate band
-    Xbands(:,k) = filter(b, 1, Xin); 
-    
-    % Optional: Display filter response
-    [H, W] = freqz(b, 1, 2048, Fs);
-    figure(1); hold on;
-    loglog(W, abs(H), 'DisplayName', sprintf('Band %d: %.1f Hz', k, fc(k)));
-end
+% Downsample both bands
+X1_lp_ds = downsample(X1_lp, 2);
+X1_hp_ds = downsample(X1_hp, 2);
 
-%% Plot Filter Responses
-title('Octave Filter Bank Frequency Responses');
+% Stage 2: Split Lowpass (X1_lp_ds) into two subbands
+X2_lp = filter(h0, 1, X1_lp_ds);
+X2_hp = filter(h1, 1, X1_lp_ds);
+
+X2_lp_ds = downsample(X2_lp, 2);
+X2_hp_ds = downsample(X2_hp, 2);
+
+% Stage 3: Split Highpass from Stage 1 into two subbands
+X3_lp = filter(h0, 1, X1_hp_ds);
+X3_hp = filter(h1, 1, X1_hp_ds);
+
+X3_lp_ds = downsample(X3_lp, 2);
+X3_hp_ds = downsample(X3_hp, 2);
+
+%% Store all 6 Bands (already downsampled)
+Band1 = X2_lp_ds; % Lowest band
+Band2 = X2_hp_ds; % Low-mid band
+Band3 = X3_lp_ds; % Mid band
+Band4 = X3_hp_ds; % High-mid band
+Band5 = downsample(filter(h0, 1, X3_hp_ds), 2); % Subband splitting continues
+Band6 = downsample(filter(h1, 1, X3_hp_ds), 2); % Highest band
+
+%% Reconstruct Signal
+% Upsample and reconstruct at each stage
+Y3_lp_us = upsample(Band3, 2);
+Y3_hp_us = upsample(Band4, 2);
+Y3_lp = filter(g0, 1, Y3_lp_us);
+Y3_hp = filter(g1, 1, Y3_hp_us);
+Y3 = Y3_lp + Y3_hp;
+
+Y2_lp_us = upsample(Band1, 2);
+Y2_hp_us = upsample(Band2, 2);
+Y2_lp = filter(g0, 1, Y2_lp_us);
+Y2_hp = filter(g1, 1, Y2_hp_us);
+Y2 = Y2_lp + Y2_hp;
+
+Y_final_lp_us = upsample(Y2, 2);
+Y_final_hp_us = upsample(Y3, 2);
+Y_final_lp = filter(g0, 1, Y_final_lp_us);
+Y_final_hp = filter(g1, 1, Y_final_hp_us);
+
+X_reconstructed = Y_final_lp + Y_final_hp;
+
+%% Frequency Response of Octave Bands
+figure;
+N_fft = 2048;
+f = linspace(0, Fs/2, N_fft); % Frequency axis
+
+% Plot FFT of each band
+hold on;
+plot(f, abs(fft(Band1, N_fft)), 'LineWidth', 1.5, 'DisplayName', 'Band 1');
+plot(f, abs(fft(Band2, N_fft)), 'LineWidth', 1.5, 'DisplayName', 'Band 2');
+plot(f, abs(fft(Band3, N_fft)), 'LineWidth', 1.5, 'DisplayName', 'Band 3');
+plot(f, abs(fft(Band4, N_fft)), 'LineWidth', 1.5, 'DisplayName', 'Band 4');
+plot(f, abs(fft(Band5, N_fft)), 'LineWidth', 1.5, 'DisplayName', 'Band 5');
+plot(f, abs(fft(Band6, N_fft)), 'LineWidth', 1.5, 'DisplayName', 'Band 6');
+
+title('Octave Bands in Frequency Domain');
 xlabel('Frequency (Hz)');
 ylabel('Magnitude');
-grid on; legend show;
+legend('show');
+grid on;
 
-%% Visualize Results
-% Time-domain plot for filtered bands
-figure(2);
-for k = 1:length(fc)
-    subplot(length(fc),1,k);
-    plot(Xbands(:,k));
-    title(sprintf('Filtered Signal: Band %d (Center: %.1f Hz)', k, fc(k)));
-    ylabel('Amplitude');
-    grid on;
-end
-xlabel('Sample Index');
+%% Compare Original and Reconstructed Signal
+figure;
 
-%% Perfect Reconstruction
-% Sum the filtered outputs
-Xreconstructed = sum(Xbands, 2);
-
-% Verify reconstruction
-figure(3);
-subplot(2,1,1);
-plot(Xin);
+subplot(3,1,1);
+plot(t, Xin, 'b');
 title('Original Signal');
+xlabel('Time (s)');
 ylabel('Amplitude');
 grid on;
 
-subplot(2,1,2);
-plot(Xreconstructed);
-title('Reconstructed Signal (Perfect Reconstruction)');
+subplot(3,1,2);
+plot(t, X_reconstructed, 'r');
+title('Reconstructed Signal');
+xlabel('Time (s)');
 ylabel('Amplitude');
 grid on;
+
+subplot(3,1,3);
+plot(t, Xin - X_reconstructed, 'k');
+title('Reconstruction Error');
+xlabel('Time (s)');
+ylabel('Amplitude');
+grid on;
+
+%% Display Reconstruction Error
+error = max(abs(Xin - X_reconstructed));
+disp(['Maximum Reconstruction Error: ', num2str(error)]);
