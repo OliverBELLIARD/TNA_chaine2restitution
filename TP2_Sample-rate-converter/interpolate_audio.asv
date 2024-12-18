@@ -30,6 +30,8 @@ upsampled_signal(1:L:end) = Xin; % Insert original samples with L-1 zeros in bet
 filtered_signal = filter(b, 1, upsampled_signal); % FIR filtering for anti-aliasing
 
 %% Gain Normalization to Preserve Amplitude
-gain_compensation = max(Xin);%sum(b); % Compensate for the gain loss due to FIR filter
+gain_compensation = max(filtered_signal)/max(Xin); % Compensate for the gain loss due to FIR filter
 Xout = filtered_signal / gain_compensation; % Apply normalization
+
+Xo
 end

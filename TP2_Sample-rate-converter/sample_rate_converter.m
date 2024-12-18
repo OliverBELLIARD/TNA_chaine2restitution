@@ -17,13 +17,7 @@ N = length(input_signal);
 t_in = (0:N-1)/Fs_in; % Time vector for input signal
 
 %% Interpolation (Upsampling)
-% Anti-Aliasing Filter Design
 Nbits = 16;
-% Fp = 20e3;           % Passband edge frequency
-% Fst = Fs_in / 2;     % Stopband edge frequency
-% Fs_up = Fs_in * L;
-% Apass = 0.01;        % Passband ripple in dB
-% Astop = 1.76 + 6.02 * 16; % Stopband attenuation in dB
 
 interpolated_signal = interpolate_audio(input_signal, Fs_in, L, Nbits);
 
@@ -53,6 +47,7 @@ loglog(frequencies_input, input_fft(1:N_fft/2), 'b', 'DisplayName', 'Input Signa
 loglog(frequencies_interp, interp_fft(1:N_fft/2), 'r', 'DisplayName', 'Interpolated Signal FFT');
 title('Frequency Response: Input Signal vs Interpolated Signal');
 xlabel('Frequency [Hz]'); ylabel('Amplitude [dB]');
+xlim([0 25e3])
 legend; grid on;
 hold off
 

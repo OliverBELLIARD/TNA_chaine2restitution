@@ -20,6 +20,7 @@ Hd = design(h, 'ellip', ...
 Xfilt = step(Hd, Xin);
 
 % Decimation
-Xout = decimate(Xfilt, M);
+gain_compensation = max(Xfilt)/max(Xin); % Compensate for the gain loss due to FIR filter
+Xout = decimate(Xfilt / gain_compensation, M); % Apply normalization
 
 end
