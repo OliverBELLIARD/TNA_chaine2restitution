@@ -14,7 +14,7 @@ h = fdesign.lowpass('fp,fst,ap,ast', Fpass, Fstop, Apass, Astop, Fs);
 
 Hd = design(h, 'ellip', ...
     'MatchExactly', 'both', ...
-    'SystemObject', true);
+    'SystemObject', true)
 
 % lowpass Filtering
 Xfilt = step(Hd, Xin);

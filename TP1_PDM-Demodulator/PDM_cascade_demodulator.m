@@ -76,7 +76,6 @@ hold on
 
 subplot(2,1,2)
 plot(pdm_decimated(1:300))
-axis([0 300 -1.1 1.1])
 grid on
 hold on
 
@@ -106,7 +105,6 @@ grid on
 
 subplot(2,1,2)
 plot(pdm_decimated(1:300))
-axis([0 300 -1.1 1.1])
 grid on
 
 %% Third cascade Decimation
@@ -134,7 +132,6 @@ grid on
 
 subplot(2,1,2)
 plot(pdm_decimated(1:300))
-axis([0 300 -1.1 1.1])
 grid on
 
 %% Fourth cascade Decimation
@@ -172,7 +169,7 @@ xlabel('Sample Index')
 ylabel('Amplitude')
 title('Cascade Decimated PCM')
 legend('2x8x8', '2x4x4x4', '8x4x4', '4x4x8')
-axis([0 300 -1.1 1.1])
+axis([0 100 -1.1 1.1])
 grid on
 
 %% Save the Decimated Output
