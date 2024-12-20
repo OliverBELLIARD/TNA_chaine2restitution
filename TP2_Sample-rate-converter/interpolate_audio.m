@@ -29,8 +29,12 @@ upsampled_signal(1:L:end) = Xin; % Insert original samples with L-1 zeros in bet
 % Apply anti-aliasing filter
 filtered_signal = filter(b, 1, upsampled_signal); % FIR filtering for anti-aliasing
 
-%% Gain Normalization to Preserve Amplitude
-gain_compensation = max(filtered_signal)/max(Xin); % Compensate for the gain loss due to FIR filter
-Xout = filtered_signal / gain_compensation; % Apply normalization
+%% Delay Compensation
+group_delay = N / 2; % Delay introduced by the FIR filter
+filtered_signal = filtered_signal(group_delay + 1:end); % Compensate for delay
+filtered_signal = [filtered_signal, zeros(1, group_delay)]; % Align signal length
 
+%% Gain Normalization to Preserve Amplitude
+gain_compensation = max(filtered_signal) / max(Xin);  % Calculate the amplitude loss during filtering
+Xout = filtered_signal / gain_compensation; % Apply gain compensation
 end
