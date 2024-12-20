@@ -1,7 +1,6 @@
 %% Sample-Rate Conversion: 44.1kHz to 48kHz
 % This script designs and implements a Sample-Rate Converter (SRC)
 % to convert a signal sampled at 44.1 kHz to 48 kHz.
-
 clear all; clc; close all;
 
 %% Parameters for the Sample Rate Converter
@@ -95,5 +94,5 @@ legend('Input (44.1 kHz)', 'output (48 kHz)');
 % Optionally save or play the audio files
 audiowrite('input_signal_44k.wav', input_signal, Fs_in);
 audiowrite('output_signal_48k.wav', out_signal, Fs_out);
-sound(input_signal, Fs_in);
-sound(out_signal, Fs_out);
+% sound(input_signal, Fs_in);
+% sound(out_signal, Fs_out);

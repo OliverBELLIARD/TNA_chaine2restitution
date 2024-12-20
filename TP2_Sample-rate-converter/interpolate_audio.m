@@ -18,7 +18,7 @@ Dstop = power(10, -Astop/20);  % Stopband Attenuation
 dens  = 20;                 % Density Factor
 
 % Calculate the filter order and coefficients
-[N, Fo, Ao, W] = firpmord([Fpass, Fstop]/(Fsup/2), [1 0], [Dpass, Dstop]);
+[N, Fo, Ao, W] = firpmord([Fpass, Fstop]/(Fsup/2), [1 0], [Dpass, Dstop])
 b = firpm(N, Fo, Ao, W, {dens}); % FIR filter coefficients
 
 %% Upsample and Filter
@@ -30,7 +30,7 @@ upsampled_signal(1:L:end) = Xin; % Insert original samples with L-1 zeros in bet
 filtered_signal = filter(b, 1, upsampled_signal); % FIR filtering for anti-aliasing
 
 %% Delay Compensation
-group_delay = N / 2; % Delay introduced by the FIR filter
+group_delay = ceil(N / 2); % Delay introduced by the FIR filter
 filtered_signal = filtered_signal(group_delay + 1:end); % Compensate for delay
 filtered_signal = [filtered_signal, zeros(1, group_delay)]; % Align signal length
 
