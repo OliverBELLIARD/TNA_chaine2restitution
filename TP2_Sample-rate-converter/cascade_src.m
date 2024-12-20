@@ -74,7 +74,6 @@ for stage = 1:num_stages
 end
 hold off;
 
-
 %% Comparaison Signal d'Entrée vs Signal Final
 figure;
 subplot(2, 1, 1);

@@ -1,0 +1,131 @@
+Stage 1: Interpolation 8 / Decimation 7
+
+N =
+
+   329
+
+
+Fo =
+
+         0
+    0.1134
+    0.1250
+    1.0000
+
+
+Ao =
+
+     1
+     1
+     0
+     0
+
+
+W =
+
+   1.0e+04 *
+
+    0.0001
+    8.0076
+
+
+Hd = 
+
+  dsp.BiquadFilter with properties:
+
+                   Structure: 'Direct form II'
+             SOSMatrixSource: 'Property'
+                   SOSMatrix: [6×6 double]
+                 ScaleValues: [7×1 double]
+           InitialConditions: 0
+    OptimizeUnityScaleValues: true
+
+  Show all properties
+
+Stage 2: Interpolation 5 / Decimation 3
+
+N =
+
+    93
+
+
+Fo =
+
+         0
+    0.1587
+    0.2000
+    1.0000
+
+
+Ao =
+
+     1
+     1
+     0
+     0
+
+
+W =
+
+   1.0e+04 *
+
+    0.0001
+    8.0076
+
+
+Hd = 
+
+  dsp.BiquadFilter with properties:
+
+                   Structure: 'Direct form II'
+             SOSMatrixSource: 'Property'
+                   SOSMatrix: [4×6 double]
+                 ScaleValues: [5×1 double]
+           InitialConditions: 0
+    OptimizeUnityScaleValues: true
+
+  Show all properties
+
+Stage 3: Interpolation 4 / Decimation 7
+
+N =
+
+    29
+
+
+Fo =
+
+         0
+    0.1190
+    0.2500
+    1.0000
+
+
+Ao =
+
+     1
+     1
+     0
+     0
+
+
+W =
+
+   1.0e+04 *
+
+    0.0001
+    8.0076
+
+
+Hd = 
+
+  dsp.BiquadFilter with properties:
+
+                   Structure: 'Direct form II'
+             SOSMatrixSource: 'Property'
+                   SOSMatrix: [6×6 double]
+                 ScaleValues: [7×1 double]
+           InitialConditions: 0
+    OptimizeUnityScaleValues: true
+
+  Show all properties
