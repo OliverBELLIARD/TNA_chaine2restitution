@@ -87,3 +87,57 @@ grid on;
 %% Display Reconstruction Error
 error = max(abs(Xin - X_reconstructed));
 disp(['Maximum Reconstruction Error: ', num2str(error)]);
+
+%% --- Octave ---
+function decompose_et_reconstruire_signal(nom_fichier)
+  % Charger le signal audio
+  [signal, fe] = audioread(nom_fichier);
+
+  % Vérifier la fréquence d'échantillonnage
+  if fe != 48000
+    fprintf("La fréquence d'échantillonnage doit être de 48 kHz\n");
+    return;
+  endif
+
+  % Créer les limites de fréquences des bandes d'octave
+  f_min = 20; % Fréquence minimale audible
+  f_max = fe / 2; % Fréquence maximale (limite de Nyquist)
+  bandes = [];
+  for i = 1:6
+    bandes(i,:) = [f_min, f_min * 2];
+    f_min = f_min * 2;
+  endfor
+
+  % Créer les filtres
+  filtres = [];
+  for i = 1:6
+    filtres(i) = fir1(100, bandes(i,:) / (fe / 2), 'bandpass');
+  endfor
+
+  % Appliquer les filtres au signal
+  signaux_filtres = [];
+  for i = 1:6
+    signaux_filtres(i,:) = filter(filtres(i), 1, signal);
+  endfor
+
+  % Reconstruire le signal
+  signal_reconstruit = sum(signaux_filtres, 1);
+
+  % Calculer l'erreur de reconstruction (erreur quadratique moyenne)
+  erreur = mean((signal - signal_reconstruit).^2);
+
+  % Visualiser les signaux
+  figure;
+  plot(signal);
+  hold on;
+  plot(signal_reconstruit, 'r');
+  legend('Signal original', 'Signal reconstruit');
+  title('Comparaison du signal original et reconstruit');
+  xlabel('Échantillons');
+  ylabel('Amplitude');
+
+  fprintf("Erreur quadratique moyenne : %f\n", erreur);
+endfunction
+
+% Exemple d'utilisation
+decompose_et_reconstruire_signal("mon_signal.wav");
