@@ -49,31 +49,27 @@ t_out = 0:1/Fs_out:(length(out_signal)-1)/Fs_out; % Temps final
 
 %% Comparaison Étape par Étape
 figure;
+hold on;
 for stage = 1:num_stages
-    subplot(2, 1, 1);
-    title('Signaux intermédiaires');
-    hold on;
+    subplot(num_stages, 2, 2*stage-1);
     t = (0:length(intermediate_signals{stage})-1) / Fs_in;
     plot(t, intermediate_signals{stage});
+    title(sprintf('Étape %d: Signal Intermédiaire (%d Hz)', stage, Fs_in));
     xlabel('Temps (s)');
     ylabel('Amplitude');
-    legend('Etage 8/7', 'Etage 5/3', 'Etage 4/7')
     grid on;
 
-    subplot(2, 1, 2);
-    hold on;
+    subplot(num_stages, 2, 2*stage);
     N_fft = length(intermediate_signals{stage});
     frequencies = linspace(0, current_fs/2, N_fft/2);
     fft_signal = abs(fft(intermediate_signals{stage}, N_fft));
     semilogx(frequencies, 20 * log10(fft_signal(1:N_fft/2)));
-    title('Réponses Fréquentielles intermédiaires');
+    title(sprintf('Étape %d: Réponse Fréquentielle', stage));
     xlabel('Fréquence (Hz)');
     ylabel('Amplitude (dB)');
-    legend('Etage 8/7', 'Etage 5/3', 'Etage 4/7')
     grid on;
 end
 hold off;
-
 
 %% Comparaison Signal d'Entrée vs Signal Final
 figure;
