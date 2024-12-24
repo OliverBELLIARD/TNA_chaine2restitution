@@ -1,67 +1,63 @@
 clear all; clc; close all;
 
 % Chargement du signal
-load('pcm_48k.mat', '-mat'); % Chargement du signal d'entrée
-Xin = pcm_48;  % Signal d'entrée
-Fs = 48000;    % Fréquence d'échantillonnage
+file_path = 'pcm_48k.mat'; % Indiquez le bon chemin vers le fichier .mat
+if exist(file_path, 'file') == 2
+    load(file_path, '-mat'); % Chargement du fichier
+else
+    error('Fichier non trouvé : %s', file_path);
+end
+
+% Vérification des données
+if ~exist('pcm_48', 'var')
+    error('La variable pcm_48 n''existe pas dans le fichier chargé.');
+end
+
+Xin = pcm_48(5e4:1e5); % Signal d'entrée
+Fs = 48000;   % Fréquence d'échantillonnage
 N = length(Xin);
-t = (0:N-1)/Fs;
+t = (0:N-1) / Fs;
 
 % Définir les bandes d'octaves
-f_min = 20; % Fréquence minimale (en Hz)
-f_max = 20000; % Fréquence maximale (Nyquist)
+f_min = 20;    % Fréquence minimale (Hz)
+f_max = 20000; % Fréquence maximale (Hz)
 num_bands = 10;
 center_freqs = logspace(log10(f_min), log10(f_max), num_bands);
 
-% Design des filtres FIR
+% Design des filtres passe-bande
 filters = cell(1, num_bands);
 for i = 1:num_bands
     if i == 1
-        % Filtre passe-bas pour la première bande
+        % Passe-bas pour la première bande
         f_high = center_freqs(1);
-        f_high_norm = f_high / (Fs/2);
-
-        % FIR passe-bas avec fenêtre de Hamming
-        n = 200; % Ordre du filtre (fixe pour simplicité)
-        filters{i} = fir1(n, f_high_norm, 'low', hamming(n+1));
+        f_high_norm = f_high / (Fs / 2);
+        n = 200; % Ordre du filtre
+        filters{i} = fir1(n, f_high_norm, 'low');
     elseif i == num_bands
-        % Filtre passe-haut pour la dernière bande
-        f_low = center_freqs(num_bands-1);
-        f_low_norm = f_low / (Fs/2);
-
-        % FIR passe-haut avec fenêtre de Hamming
+        % Passe-haut pour la dernière bande
+        f_low = center_freqs(num_bands - 1);
+        f_low_norm = f_low / (Fs / 2);
         n = 200; % Ordre du filtre
-        filters{i} = fir1(n, f_low_norm, 'high', hamming(n+1));
+        filters{i} = fir1(n, f_low_norm, 'high');
     else
-        % Filtre passe-bande pour les bandes intermédiaires
-        f_low = center_freqs(i-1);
+        % Passe-bande pour les bandes intermédiaires
+        f_low = center_freqs(i - 1);
         f_high = center_freqs(i);
-        f_low_norm = f_low / (Fs/2);
-        f_high_norm = f_high / (Fs/2);
-
-        % FIR passe-bande avec fenêtre de Hamming
+        f_low_norm = f_low / (Fs / 2);
+        f_high_norm = f_high / (Fs / 2);
         n = 200; % Ordre du filtre
-        filters{i} = fir1(n, [f_low_norm f_high_norm], 'bandpass', hamming(n+1));
+        filters{i} = fir1(n, [f_low_norm f_high_norm], 'bandpass');
     end
 end
 
-% Décomposer le signal en sous-bandes
+% Application des filtres
 subbands = zeros(num_bands, N);
 for i = 1:num_bands
-    b = filters{i};
-    subbands(i, :) = filter(b, 1, Xin); % Application du filtre FIR
+    subbands(i, :) = filter(filters{i}, 1, Xin);
 end
 
 % Reconstruction du signal
 reconstructed_signal = sum(subbands, 1);
-
-% Gestion des retards des filtres FIR (délais linéaires)
-group_delays = zeros(1, num_bands);
-for i = 1:num_bands
-    group_delays(i) = length(filters{i}) / 2; % Délais linéaires pour filtres FIR
-end
-max_delay = max(group_delays);
-reconstructed_signal = circshift(reconstructed_signal, -round(max_delay)); % Compense le retard
 
 % Calcul de l'erreur
 error_signal = Xin - reconstructed_signal;
@@ -70,90 +66,19 @@ error_signal = Xin - reconstructed_signal;
 figure;
 subplot(3, 1, 1);
 plot(t, Xin);
-title("Signal d'origine");
+title('Signal d''origine');
 xlabel('Temps (s)');
 ylabel('Amplitude');
 
 subplot(3, 1, 2);
 plot(t, reconstructed_signal);
-title("Signal reconstruit");
+title('Signal reconstruit');
 xlabel('Temps (s)');
 ylabel('Amplitude');
 
 subplot(3, 1, 3);
 plot(t, error_signal);
-title("Erreur entre le signal original et reconstruit");
-xlabel("Temps (s)");
-ylabel("Amplitude");
+title('Erreur');
+xlabel('Temps (s)');
+ylabel('Amplitude');
 
-% Affichage des réponses fréquentielles des filtres
-figure;
-hold on;
-for i = 1:num_bands
-    b = filters{i};
-    [H, f] = freqz(b, 1, 1024, Fs);
-    plot(f, 20*log10(abs(H)));
-end
-title("Réponses fréquentielles des filtres FIR");
-xlabel("Fréquence (Hz)");
-ylabel("Amplitude (dB)");
-grid on;
-legend(arrayfun(@(f) sprintf("Bande %d", f), 1:num_bands, "UniformOutput", false));
-
-%% Display Reconstruction Error
-error = max(abs(Xin - X_reconstructed));
-disp(['Maximum Reconstruction Error: ', num2str(error)]);
-
-%% --- Octave ---
-function decompose_et_reconstruire_signal(nom_fichier)
-  % Charger le signal audio
-  [signal, fe] = audioread(nom_fichier);
-
-  % Vérifier la fréquence d'échantillonnage
-  if fe != 48000
-    fprintf("La fréquence d'échantillonnage doit être de 48 kHz\n");
-    return;
-  endif
-
-  % Créer les limites de fréquences des bandes d'octave
-  f_min = 20; % Fréquence minimale audible
-  f_max = fe / 2; % Fréquence maximale (limite de Nyquist)
-  bandes = [];
-  for i = 1:6
-    bandes(i,:) = [f_min, f_min * 2];
-    f_min = f_min * 2;
-  endfor
-
-  % Créer les filtres
-  filtres = [];
-  for i = 1:6
-    filtres(i) = fir1(100, bandes(i,:) / (fe / 2), 'bandpass');
-  endfor
-
-  % Appliquer les filtres au signal
-  signaux_filtres = [];
-  for i = 1:6
-    signaux_filtres(i,:) = filter(filtres(i), 1, signal);
-  endfor
-
-  % Reconstruire le signal
-  signal_reconstruit = sum(signaux_filtres, 1);
-
-  % Calculer l'erreur de reconstruction (erreur quadratique moyenne)
-  erreur = mean((signal - signal_reconstruit).^2);
-
-  % Visualiser les signaux
-  figure;
-  plot(signal);
-  hold on;
-  plot(signal_reconstruit, 'r');
-  legend('Signal original', 'Signal reconstruit');
-  title('Comparaison du signal original et reconstruit');
-  xlabel('Échantillons');
-  ylabel('Amplitude');
-
-  fprintf("Erreur quadratique moyenne : %f\n", erreur);
-endfunction
-
-% Exemple d'utilisation
-decompose_et_reconstruire_signal("mon_signal.wav");
