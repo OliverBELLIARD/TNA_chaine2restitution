@@ -1,6 +1,6 @@
 clear all; clc; close all;
 
-% Chargement du signal
+%% Chargement du signal
 file_path = 'pcm_48k.mat'; % Indiquez le bon chemin vers le fichier .mat
 if exist(file_path, 'file') == 2
     load(file_path, '-mat'); % Chargement du fichier
@@ -18,13 +18,13 @@ Fs = 48000;   % Fréquence d'échantillonnage
 N = length(Xin);
 t = (0:N-1) / Fs;
 
-% Frequencies for octave bands (20 Hz to 20 kHz)
+%% Frequencies for octave bands (20 Hz to 20 kHz)
 f_min = 20;                   % Minimum frequency
 num_bands = 10;               % Number of bands
 frequencies = f_min * 2.^(0:(num_bands-1)); % Octave band center frequencies
 
-% Filter design
-fir_order = 20000;            % FIR filter order
+%% Filter design
+fir_order = 2000;            % FIR filter order
 filters = cell(1, num_bands); % Filter storage
 delays = zeros(1, num_bands); % Delay storage
 for i = 1:num_bands
@@ -60,9 +60,11 @@ for i = 1:num_bands
     y_reconstructed = y_reconstructed + subbands{i};
 end
 
-% Visualize signals and errors
+%% Visualize signals and errors
 figure;
-x_lim = [0 (N-fir_order/2)/Fs];
+ploted_samples = 500;
+x_lim = [0 (ploted_samples)/Fs];
+
 % (1) Original and reconstructed signal
 subplot(2,1,1);
 plot(t, Xin, 'b', 'LineWidth', 1.5); hold on;
@@ -82,6 +84,7 @@ title('Reconstruction Error');
 xlabel('Time (s)');
 ylabel('Amplitude');
 xlim(x_lim);
+ylim([-2e-4 4e-4])
 grid on;
 
 % (3) Bode diagram for all filters
@@ -94,6 +97,7 @@ end
 title('Bode Diagram of Octave Band Filters');
 xlabel('Frequency (Hz)');
 ylabel('Magnitude (dB)');
+xlim([10e1 1e5]);
 grid on;
 legend(arrayfun(@(x) sprintf('Band %d', x), 1:num_bands, 'UniformOutput', false));
 hold off;
