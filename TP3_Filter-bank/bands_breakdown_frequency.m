@@ -7,7 +7,7 @@ num_bands = 10; % Number of octave bands
 frequencies = f_min * 2.^(0:num_bands-1); % Center frequencies for each band
 
 x = load('pcm_48k.mat', '-mat').pcm_48(5e4:1e5); % Signal input
-M = 256; % Window size
+M = 1024; % Window size
 overlap_fraction = 0.67; % 60% overlap
 R = floor(M * (1 - overlap_fraction)); % Hop size
 
